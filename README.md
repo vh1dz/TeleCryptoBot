@@ -23,5 +23,5 @@ import TeleCryptoBot
 crypto = TeleCryptoBot.TeleCryptoBot("0000:qwertyuiop")
 
 invoice = crypto.createInvoice(asset="USDT", amount=1.0)
-print(invoice)
+print(invoice.bot_invoice_url)
 ```
