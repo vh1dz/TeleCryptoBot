@@ -15,6 +15,7 @@ from .invoice import Invoice
 from .transfer import Transfer
 from .check import Check
 from .app_stats import AppStats
+from .exchange import getRate, getRateSumm
 
 from datetime import datetime
 from typing import Optional, Union, List, Callable
@@ -87,7 +88,7 @@ class TeleCryptoBot:
         response = RequestBody.req(self, key=self.apikey, method="createCheck", data=params)
         return Check(**response["result"])
 
-    def delete_check(self, check_id: int) -> bool:
+    def deleteCheck(self, check_id: int) -> bool:
         params = {
             "check_id": check_id
         }
@@ -114,7 +115,7 @@ class TeleCryptoBot:
         response = RequestBody.req(self, key=self.apikey, method="transfer", data=params)
         return Transfer(**response["result"])
 
-    def get_invoices(
+    def getInvoices(
         self,
         asset: Optional[Union[Assets, str]] = None,
         invoice_ids: Optional[Union[List[int], int]] = None,
@@ -158,7 +159,7 @@ class TeleCryptoBot:
                 return Transfer(**response["result"]["items"][0])
             return [Transfer(**transfer) for transfer in response["result"]["items"]]
 
-    def get_checks(
+    def getChecks(
         self,
         asset: Optional[Union[Assets, str]] = None,
         check_ids: Optional[Union[List[int], int]] = None,
@@ -192,7 +193,7 @@ class TeleCryptoBot:
         response = RequestBody.req(self, key=self.apikey, method="getCurrencies")
         return [Currency(**currency) for currency in response["result"]]
 
-    def get_stats(
+    def getStats(
         self,
         start_at: Optional[Union[datetime, str]] = None,
         end_at: Optional[Union[datetime, str]] = None,
@@ -203,3 +204,10 @@ class TeleCryptoBot:
         }
         response = RequestBody.req(self, key=self.apikey, method="getStats", data=params)
         return AppStats(**response["result"])
+    def getAmountByFiat(
+        self, summ: Union[int, float], asset: Union[Assets, str], target: str
+    ) -> Union[int, float]:
+        rates = self.getExchangeRates()
+        rate = getRate(source=asset, target=target, rates=rates)
+        fiatSumm = getRateSumm(summ=summ, rate=rate)
+        return fiatSumm
